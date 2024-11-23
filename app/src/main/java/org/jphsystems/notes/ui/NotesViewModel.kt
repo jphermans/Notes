@@ -31,6 +31,9 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
     private val _background = MutableStateFlow<Background>(Background.Color(0xFFFFFFFF))
     val background: StateFlow<Background> = _background.asStateFlow()
 
+    private val _focusedNoteId = MutableStateFlow<String?>(null)
+    val focusedNoteId: StateFlow<String?> = _focusedNoteId.asStateFlow()
+
     companion object {
         val noteColors = listOf(
             0xFFFFB3BA, // Light pink
@@ -97,7 +100,7 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun addNote(content: String = "New Note") {
+    fun addNote(content: String = "New Note", autoFocus: Boolean = false) {
         val newNote = Note(
             id = UUID.randomUUID().toString(),
             content = content,
@@ -106,6 +109,13 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
             color = noteColors.random()
         )
         updateNotes(_notes.value + newNote)
+        if (autoFocus) {
+            _focusedNoteId.value = newNote.id
+        }
+    }
+
+    fun clearNoteFocus() {
+        _focusedNoteId.value = null
     }
 
     fun updateNotePosition(id: String, x: Float, y: Float) {

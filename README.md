@@ -1,69 +1,79 @@
-# Notes App
+# Post-it Notes App
 
-A modern Android application for creating and managing notes efficiently.
-
-## Description
-
-Notes is a user-friendly Android application that allows users to create, edit, and organize their notes. Built with modern Android development practices and Material Design principles.
+A modern Android notes app that mimics the experience of physical sticky notes with added digital convenience.
 
 ## Features
 
-- Create and edit notes
-- Material Design UI
-- Local storage for notes
-- Easy-to-use interface
-- Dark/Light theme support
+### Note Management
+- Create and manage digital sticky notes
+- Notes automatically resize based on content length
+- Drag and drop notes anywhere on the screen
+- Quick note creation from notification
+- Delete notes with a single tap
 
-## Getting Started
+### Rich Customization
+- Customize note colors individually
+- Change app background color or set custom background image
+- Long press anywhere to access background settings
+- Yellow-themed interface with dark icons for better visibility
 
-### Prerequisites
+### Smart UI
+- Adaptive note sizes:
+  - Regular notes: 200x150dp
+  - Medium content (>50 chars): 250x200dp
+  - Large content (>100 chars): 300x250dp
+  - Extra large content (>200 chars): 350x300dp
+- Separate drag handle area for better touch control
+- Smooth animations when editing or moving notes
+- Clear text visibility without needing to interact
 
-- Android Studio Arctic Fox or later
-- Android SDK 21 or higher
-- Gradle 7.0 or higher
+### Persistent Notification
+- Always-accessible quick note creation
+- Shows current number of notes in app
+- "Post-it" branding in notification
+- Quick access to app via notification
 
-### Installation
+## Technical Details
 
-1. Clone the repository
-```bash
-git clone https://github.com/macfreaker/Notes.git
-```
-
-2. Open the project in Android Studio
-
-3. Build the project using Gradle
-```bash
-./gradlew build
-```
-
-4. Run the app on an emulator or physical device
-
-## Tech Stack
-
+### Built With
 - Kotlin
-- Android Jetpack Components
-- Room Database
-- Material Design Components
-- MVVM Architecture
-- Coroutines for asynchronous operations
+- Jetpack Compose for modern UI
+- Material Design 3
+- ViewModel architecture
+- Room Database for persistence
+- Kotlin Coroutines for async operations
+
+### Requirements
+- Android 6.0 (API level 23) or higher
+- Notification permission for quick note creation
+
+## Installation
+1. Clone the repository
+2. Open in Android Studio
+3. Build and run on your device or emulator
+
+## Usage
+1. Launch app - a persistent notification will appear for quick access
+2. Tap floating action button or use notification to create new notes
+3. Drag notes by their header to reposition
+4. Tap note to edit content
+5. Use color picker to customize note colors
+6. Long press background to change app background
+7. Notes persist between app launches
+
+## Permissions
+- Notification permission: Required for quick note creation feature
+- Storage permission: Optional, needed only for custom background images
 
 ## Contributing
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Feel free to submit issues, fork the repository, and create pull requests for any improvements.
 
 ## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Contact
-
-Project Link: [https://github.com/yourusername/Notes](https://github.com/macfreaker/Notes)
+Project Link: [https://github.com/macfreaker/Notes](https://github.com/macfreaker/Notes)
 
 ## Acknowledgments
-
 * [Android Developer Documentation](https://developer.android.com/)
 * [Material Design](https://material.io/)

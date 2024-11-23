@@ -1,8 +1,10 @@
 package org.jphsystems.notes
 
 import android.Manifest
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -111,6 +114,7 @@ fun NotesScreen(
 ) {
     val notes by viewModel.notes.collectAsState()
     val background by viewModel.background.collectAsState()
+    val focusedNoteId by viewModel.focusedNoteId.collectAsState()
     var showBackgroundSettings by remember { mutableStateOf(false) }
     var showColorPicker by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
@@ -118,7 +122,7 @@ fun NotesScreen(
     if (showBackgroundSettings) {
         BackgroundSettingsDialog(
             onColorPickerRequested = { showColorPicker = true },
-            onImageSelected = { uri -> 
+            onImageSelected = { uri ->
                 viewModel.updateBackgroundImage(uri)
             },
             onDismiss = { showBackgroundSettings = false },
@@ -168,7 +172,7 @@ fun NotesScreen(
                 onClick = { viewModel.addNote() },
                 shape = CircleShape,
                 elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp),
-                containerColor = Color.Yellow
+                containerColor = Color(0xFFFFEB3B)  // Material Yellow
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -189,12 +193,14 @@ fun NotesScreen(
                         is Background.Color -> Modifier.background(Color(bg.color))
                         is Background.Image -> Modifier.paint(
                             painter = rememberAsyncImagePainter(
-                                ImageRequest.Builder(LocalContext.current)
+                                ImageRequest
+                                    .Builder(LocalContext.current)
                                     .data(bg.uri)
                                     .build()
                             ),
                             contentScale = ContentScale.Crop
                         )
+
                         else -> Modifier.background(Color.White)
                     }
                 )
@@ -219,6 +225,12 @@ fun NotesScreen(
                     },
                     onDelete = {
                         viewModel.deleteNote(note.id)
+                    },
+                    isFocused = note.id == focusedNoteId,
+                    onFocusChanged = { isFocused ->
+                        if (!isFocused) {
+                            viewModel.clearNoteFocus()
+                        }
                     }
                 )
             }
@@ -228,18 +240,26 @@ fun NotesScreen(
 
 class MainActivity : ComponentActivity() {
     private val viewModel: NotesViewModel by viewModels()
+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
+    ) { isGranted: Boolean ->
         if (isGranted) {
-            // Permission granted, user can select images
-        } else {
-            // Permission denied, show a message to the user
+            startNotificationService()
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Set status bar color to yellow
+        window.statusBarColor = Color(0xFFFFEB3B).toArgb()
+        // Make status bar icons dark for better visibility on yellow background
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+
+        checkNotificationPermission()
+        handleIntent(intent)
+
         setContent {
             NotesTheme {
                 NotesScreen(
@@ -248,6 +268,35 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        when (intent?.action) {
+            "org.jphsystems.notes.CREATE_NOTE" -> {
+                viewModel.addNote("New Quick Note", autoFocus = true)
+            }
+        }
+    }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                startNotificationService()
+            } else {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        } else {
+            startNotificationService()
+        }
+    }
+
+    private fun startNotificationService() {
+        org.jphsystems.notes.service.NotificationService.startService(this)
     }
 
     private fun checkAndRequestPermissions() {
