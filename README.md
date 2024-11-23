@@ -26,7 +26,7 @@ Notes is a user-friendly Android application that allows users to create, edit, 
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/Notes.git
+git clone https://github.com/macfreaker/Notes.git
 ```
 
 2. Open the project in Android Studio
@@ -61,9 +61,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-Your Name - [@yourusername](https://twitter.com/yourusername)
+Your Name - [@yourusername](https://twitter.com/macfreaker)
 
-Project Link: [https://github.com/yourusername/Notes](https://github.com/yourusername/Notes)
+Project Link: [https://github.com/yourusername/Notes](https://github.com/macfreaker/Notes)
 
 ## Acknowledgments
 
