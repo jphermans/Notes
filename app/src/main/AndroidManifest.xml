@@ -28,6 +28,32 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".widget.QuickNoteActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Notes.Dialog"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+
+        <receiver android:name=".widget.NotesWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/notes_widget_info" />
+        </receiver>
+
+        <activity
+            android:name=".widget.NotesWidgetConfigureActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Notes">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name=".service.NotificationService"
             android:enabled="true"

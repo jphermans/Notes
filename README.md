@@ -72,7 +72,7 @@ Feel free to submit issues, fork the repository, and create pull requests for an
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## Contact
-Project Link: [https://github.com/macfreaker/Notes](https://github.com/macfreaker/Notes)
+Project Link: [https://github.com/jphermans/Notes](https://github.com/jphermans/Notes)
 
 ## Acknowledgments
 * [Android Developer Documentation](https://developer.android.com/)

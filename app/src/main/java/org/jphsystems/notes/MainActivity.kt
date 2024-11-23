@@ -172,12 +172,12 @@ fun NotesScreen(
                 onClick = { viewModel.addNote() },
                 shape = CircleShape,
                 elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp),
-                containerColor = MaterialTheme.colorScheme.primaryContainer
+                containerColor = Color(0xFFFFEB3B)  // Material Yellow
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add note",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    tint = Color.Black,
                     modifier = Modifier.padding(4.dp)
                 )
             }
@@ -252,6 +252,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Handle intent when activity is first created
+        handleIntent(intent)
+
         setContent {
             NotesTheme {
                 NotesScreen(
@@ -260,6 +263,8 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+
+        checkNotificationPermission()
     }
 
     override fun onNewIntent(intent: Intent?) {
@@ -270,7 +275,8 @@ class MainActivity : ComponentActivity() {
     private fun handleIntent(intent: Intent?) {
         when (intent?.action) {
             "org.jphsystems.notes.CREATE_NOTE" -> {
-                viewModel.addNote("New Quick Note", autoFocus = true)
+                val noteText = intent.getStringExtra("note_text") ?: ""
+                viewModel.addNote(noteText, autoFocus = true)
             }
         }
     }
