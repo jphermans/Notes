@@ -30,7 +30,7 @@ jobs:
       run: ./gradlew assembleDebug
 
     - name: Build Release APK
-      run: ./gradlew assembleRelease -x signReleaseBundle -x signRelease
+      run: ./gradlew assembleRelease -x signReleaseBundle -x signingConfigWriterRelease
 
     - name: Upload Debug APK
       uses: actions/upload-artifact@v3
