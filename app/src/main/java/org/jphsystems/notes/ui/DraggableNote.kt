@@ -75,7 +75,11 @@ fun DraggableNote(
                         isDragging = false
                         onPositionChanged(offsetX, offsetY)
                     },
-                    onDragCancel = { isDragging = false },
+                    onDragCancel = { 
+                        isDragging = false
+                        offsetX = note.x
+                        offsetY = note.y
+                    },
                     onDrag = { change, dragAmount ->
                         change.consume()
                         offsetX += dragAmount.x
@@ -98,31 +102,15 @@ fun DraggableNote(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                if (isEditing) {
-                    IconButton(
-                        onClick = {
-                            isEditing = false
-                            focusManager.clearFocus()
-                        },
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Done editing",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                } else {
-                    IconButton(
-                        onClick = { showColorPicker = true },
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Change color",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
+                IconButton(
+                    onClick = { showColorPicker = true },
+                    modifier = Modifier.size(24.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Change color",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
                 }
                 
                 Spacer(modifier = Modifier.weight(1f))
@@ -144,16 +132,19 @@ fun DraggableNote(
                 onValueChange = { if (!isDragging) onContentChanged(it) },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .weight(1f)
                     .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
                         isEditing = focusState.isFocused
                     },
                 colors = TextFieldDefaults.colors(
-                    unfocusedContainerColor = Color.Transparent,
                     focusedContainerColor = Color.Transparent,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface
-                )
+                    unfocusedContainerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                textStyle = MaterialTheme.typography.bodyLarge
             )
         }
     }
