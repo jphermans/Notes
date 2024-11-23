@@ -74,11 +74,14 @@ class NotificationService : Service() {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "Post-it Quick Access",
-                NotificationManager.IMPORTANCE_DEFAULT
+                NotificationManager.IMPORTANCE_LOW
             ).apply {
                 description = "Quick access to create new post-it notes"
                 setShowBadge(true)
                 lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
+                setSound(null, null)
+                enableVibration(false)
+                enableLights(false)
             }
 
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -144,6 +147,8 @@ class NotificationService : Service() {
                 "Add New Note",
                 createNotePendingIntent
             )
+            .setSound(null)
+            .setVibrate(null)
             .build()
     }
 }
