@@ -181,6 +181,7 @@ fun NotesScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(paddingValues)
                 .then(
                     when (val bg = background) {
                         is Background.Color -> Modifier.background(Color(bg.color))
@@ -195,7 +196,6 @@ fun NotesScreen(
                         else -> Modifier.background(Color.White)
                     }
                 )
-                .padding(top = 0.dp)
                 .pointerInput(Unit) {
                     detectTapGestures(
                         onLongPress = { showBackgroundSettings = true }
