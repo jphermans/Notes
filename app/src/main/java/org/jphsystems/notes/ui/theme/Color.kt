@@ -13,14 +13,14 @@ val LightOnBackground = Color(0xFF000000)
 val LightOnSurface = Color(0xFF121212)
 
 // Dark Theme Colors
-val DarkPrimary = Color(0xFF90CAF9)
-val DarkSecondary = Color(0xFF81D4FA)
-val DarkBackground = Color(0xFF121212)
-val DarkSurface = Color(0xFF1E1E1E)
+val DarkPrimary = Color(0xFF81C784)  // A softer green
+val DarkSecondary = Color(0xFF64B5F6)  // A softer blue
+val DarkBackground = Color(0xFF121212)  // Material dark background
+val DarkSurface = Color(0xFF1E1E1E)  // Slightly lighter than background
 val DarkOnPrimary = Color(0xFF000000)
 val DarkOnSecondary = Color(0xFF000000)
-val DarkOnBackground = Color(0xFFFFFFFF)
-val DarkOnSurface = Color(0xFFFFFFFF)
+val DarkOnBackground = Color(0xFFE0E0E0)  // Slightly dimmer white for less eye strain
+val DarkOnSurface = Color(0xFFE0E0E0)  // Slightly dimmer white for less eye strain
 
 // Note Colors
 val NoteLightBackground = Color(0xFFFFFBE6)

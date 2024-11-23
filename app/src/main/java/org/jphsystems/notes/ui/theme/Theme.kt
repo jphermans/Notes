@@ -58,10 +58,17 @@ fun NotesTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = Color(0xFFFFEB3B).toArgb()
-            window.navigationBarColor = Color(0xFFFFEB3B).toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = true
+            if (darkTheme) {
+                window.statusBarColor = Color(0xFF2D2D2D).toArgb()
+                window.navigationBarColor = Color(0xFF2D2D2D).toArgb()
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = false
+                WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = false
+            } else {
+                window.statusBarColor = Color(0xFFFFEB3B).toArgb()
+                window.navigationBarColor = Color(0xFFFFEB3B).toArgb()
+                WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = true
+                WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = true
+            }
         }
     }
 

@@ -145,7 +145,7 @@ fun NotesScreen(
     }
 
     Scaffold(
-        containerColor = Color.Yellow,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
@@ -163,7 +163,7 @@ fun NotesScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Yellow
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
         },
@@ -172,12 +172,12 @@ fun NotesScreen(
                 onClick = { viewModel.addNote() },
                 shape = CircleShape,
                 elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp),
-                containerColor = Color(0xFFFFEB3B)  // Material Yellow
+                containerColor = MaterialTheme.colorScheme.primaryContainer
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Add note",
-                    tint = Color.Black,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.padding(4.dp)
                 )
             }
@@ -251,14 +251,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Set status bar color to yellow
-        window.statusBarColor = Color(0xFFFFEB3B).toArgb()
-        // Make status bar icons dark for better visibility on yellow background
-        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-
-        checkNotificationPermission()
-        handleIntent(intent)
 
         setContent {
             NotesTheme {
