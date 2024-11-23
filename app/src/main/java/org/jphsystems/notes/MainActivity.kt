@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -178,6 +179,7 @@ fun NotesScreen(
             }
         }
     ) { paddingValues ->
+        val focusManager = LocalFocusManager.current
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -198,6 +200,7 @@ fun NotesScreen(
                 )
                 .pointerInput(Unit) {
                     detectTapGestures(
+                        onTap = { focusManager.clearFocus() },
                         onLongPress = { showBackgroundSettings = true }
                     )
                 }

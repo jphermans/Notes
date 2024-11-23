@@ -96,6 +96,15 @@ fun DraggableNote(
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(8.dp)
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = {
+                            if (!isEditing) {
+                                focusRequester.requestFocus()
+                            }
+                        }
+                    )
+                }
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -136,6 +145,10 @@ fun DraggableNote(
                     .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
                         isEditing = focusState.isFocused
+                        if (!focusState.isFocused) {
+                            // Clear focus when not editing
+                            focusManager.clearFocus()
+                        }
                     },
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
@@ -144,7 +157,9 @@ fun DraggableNote(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
-                textStyle = MaterialTheme.typography.bodyLarge
+                textStyle = MaterialTheme.typography.bodyLarge,
+                singleLine = false,
+                maxLines = 10
             )
         }
     }
