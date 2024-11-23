@@ -3,12 +3,14 @@ package org.jphsystems.notes.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
+import androidx.compose.animation.core.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +23,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import org.jphsystems.notes.data.Note
+import org.jphsystems.notes.ui.theme.NoteDarkBackground
+import org.jphsystems.notes.ui.theme.NoteLightBackground
 import kotlin.math.roundToInt
 
 @Composable
@@ -39,6 +43,14 @@ fun DraggableNote(
     var isEditing by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
+    val isSystemInDarkTheme = isSystemInDarkTheme()
+    val noteBackgroundColor = if (isSystemInDarkTheme) NoteDarkBackground else NoteLightBackground
+    
+    val transition = updateTransition(targetState = isEditing, label = "editing")
+    val noteSize by transition.animateDp(
+        transitionSpec = { spring(stiffness = Spring.StiffnessLow) },
+        label = "size"
+    ) { editing -> if (editing) 300.dp else 200.dp }
 
     if (showColorPicker) {
         ColorPickerDialog(
@@ -50,34 +62,36 @@ fun DraggableNote(
     Box(
         modifier = modifier
             .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
+            .background(
+                color = Color(note.color).copy(alpha = 0.7f),
+                shape = RoundedCornerShape(8.dp)
+            )
+            .padding(8.dp)
+            .width(noteSize)
             .pointerInput(Unit) {
                 detectDragGestures(
                     onDragStart = { isDragging = true },
-                    onDragEnd = { isDragging = false },
-                    onDragCancel = { isDragging = false }
-                ) { change, dragAmount ->
-                    change.consume()
-                    if (!isEditing) {
+                    onDragEnd = {
+                        isDragging = false
+                        onPositionChanged(offsetX, offsetY)
+                    },
+                    onDragCancel = { isDragging = false },
+                    onDrag = { change, dragAmount ->
+                        change.consume()
                         offsetX += dragAmount.x
                         offsetY += dragAmount.y
-                        onPositionChanged(offsetX, offsetY)
                     }
-                }
+                )
             }
     ) {
         Column(
             modifier = Modifier
-                .size(200.dp)
+                .size(noteSize)
                 .background(
-                    color = Color(note.color),
+                    color = noteBackgroundColor,
                     shape = RoundedCornerShape(8.dp)
                 )
                 .padding(8.dp)
-                .pointerInput(Unit) {
-                    detectTapGestures(
-                        onLongPress = { showColorPicker = true }
-                    )
-                }
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -95,7 +109,18 @@ fun DraggableNote(
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = "Done editing",
-                            tint = Color.Gray
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                } else {
+                    IconButton(
+                        onClick = { showColorPicker = true },
+                        modifier = Modifier.size(24.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = "Change color",
+                            tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -109,7 +134,7 @@ fun DraggableNote(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Delete note",
-                        tint = Color.Gray
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -126,8 +151,8 @@ fun DraggableNote(
                 colors = TextFieldDefaults.colors(
                     unfocusedContainerColor = Color.Transparent,
                     focusedContainerColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
