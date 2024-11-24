@@ -47,14 +47,14 @@ class NotesViewModel(application: Application) : AndroidViewModel(application) {
         ).map { it.toLong() }
 
         val backgroundColors = listOf(
-            0xFFFFFFFF, // White
-            0xFFF0F0F0, // Light Gray
-            0xFFFFF8DC, // Cornsilk
-            0xFFF0FFFF, // Azure
-            0xFFF5F5DC, // Beige
-            0xFFFFFAF0, // Floral White
-            0xFFF0FFF0, // Honeydew
-            0xFFFFF0F5  // Lavender Blush
+            0xFFFFE0E0, // Soft Red
+            0xFFFFB74D, // Warm Orange
+            0xFFFFF176, // Bright Yellow
+            0xFFAED581, // Fresh Green
+            0xFF81D4FA, // Sky Blue
+            0xFFB39DDB, // Royal Purple
+            0xFFFFCDD2, // Rose Pink
+            0xFFBDBDBD  // Cool Gray
         ).map { it.toLong() }
 
         private val BACKGROUND_COLOR_KEY = longPreferencesKey("background_color")

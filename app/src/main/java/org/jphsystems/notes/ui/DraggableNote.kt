@@ -38,6 +38,7 @@ fun DraggableNote(
     onDelete: () -> Unit,
     isFocused: Boolean = false,
     onFocusChanged: (Boolean) -> Unit = {},
+    darkTheme: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     var offsetX by remember { mutableStateOf(note.x) }
@@ -48,7 +49,7 @@ fun DraggableNote(
     
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    val noteBackgroundColor = Color(note.color).copy(alpha = 0.3f)
+    val noteBackgroundColor = Color(note.color).copy(alpha = 0.9f)
     
     LaunchedEffect(isFocused) {
         if (isFocused) {
@@ -69,10 +70,11 @@ fun DraggableNote(
                    else if (note.content.length > 50) 250.dp 
                    else 200.dp
     
-    val baseHeight = if (note.content.length > 200) 300.dp 
-                    else if (note.content.length > 100) 250.dp 
-                    else if (note.content.length > 50) 200.dp 
-                    else 150.dp
+    val baseHeight = if (note.content.length > 300) 280.dp
+                    else if (note.content.length > 200) 240.dp 
+                    else if (note.content.length > 100) 180.dp 
+                    else if (note.content.length > 50) 140.dp 
+                    else 100.dp
     
     val noteSize by animateDpAsState(
         targetValue = if (isEditing) baseWidth + 50.dp else baseWidth,
@@ -111,7 +113,7 @@ fun DraggableNote(
                 .fillMaxWidth()
                 .height(24.dp)
                 .background(
-                    color = Color(note.color).copy(alpha = 0.7f),
+                    color = Color(note.color).copy(alpha = 0.95f),
                     shape = RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp)
                 )
                 .pointerInput(Unit) {
@@ -167,7 +169,7 @@ fun DraggableNote(
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Change color",
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = if (darkTheme) Color.Black.copy(alpha = 0.87f) else MaterialTheme.colorScheme.onSurface
                     )
                 }
                 
@@ -183,7 +185,7 @@ fun DraggableNote(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Delete note",
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = if (darkTheme) Color.Black.copy(alpha = 0.87f) else MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -199,14 +201,14 @@ fun DraggableNote(
                     modifier = Modifier
                         .fillMaxSize()
                         .focusRequester(focusRequester)
-                        .onFocusChanged { focusState ->
-                            isEditing = focusState.isFocused
-                            onFocusChanged(focusState.isFocused)
+                        .onFocusChanged { 
+                            isEditing = it.isFocused
+                            onFocusChanged(it.isFocused)
                         },
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = if (darkTheme) Color.Black.copy(alpha = 0.87f) else MaterialTheme.colorScheme.onSurface
                     ),
-                    cursorBrush = SolidColor(MaterialTheme.colorScheme.primary)
+                    cursorBrush = SolidColor(if (darkTheme) Color.Black.copy(alpha = 0.87f) else MaterialTheme.colorScheme.onSurface)
                 )
             }
         }

@@ -59,6 +59,9 @@ dependencies {
     // Coil for image loading
     implementation(libs.coil.compose)
     
+    // SystemUiController
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

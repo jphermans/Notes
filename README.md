@@ -26,6 +26,14 @@ A modern Android notes app that mimics the experience of physical sticky notes w
 - Separate drag handle area for better touch control
 - Smooth animations when editing or moving notes
 - Clear text visibility without needing to interact
+- Consistent yellow theme with dark icons in both light and dark modes
+- Yellow system bars (status and navigation) for a cohesive look
+
+### User Interface
+- Clean, minimalist top bar with essential controls
+- About dialog with app information
+- Dark mode support with theme-aware components
+- Background customization available in light mode
 
 ### Persistent Notification
 - Always-accessible quick note creation

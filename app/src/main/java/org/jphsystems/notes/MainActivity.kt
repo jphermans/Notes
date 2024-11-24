@@ -11,18 +11,25 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -33,6 +40,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -41,6 +50,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
@@ -52,6 +62,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.view.WindowCompat
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import org.jphsystems.notes.ui.Background
@@ -110,7 +121,9 @@ fun AboutScreen(
 @Composable
 fun NotesScreen(
     viewModel: NotesViewModel,
-    onImagePickerRequest: () -> Unit
+    onImagePickerRequest: () -> Unit,
+    darkTheme: Boolean,
+    onThemeChanged: (Boolean) -> Unit
 ) {
     val notes by viewModel.notes.collectAsState()
     val background by viewModel.background.collectAsState()
@@ -118,6 +131,7 @@ fun NotesScreen(
     var showBackgroundSettings by remember { mutableStateOf(false) }
     var showColorPicker by remember { mutableStateOf(false) }
     var showAbout by remember { mutableStateOf(false) }
+    var showAddNoteDialog by remember { mutableStateOf(false) }
 
     if (showBackgroundSettings) {
         BackgroundSettingsDialog(
@@ -126,50 +140,177 @@ fun NotesScreen(
                 viewModel.updateBackgroundImage(uri)
             },
             onDismiss = { showBackgroundSettings = false },
-            onImagePickerRequest = onImagePickerRequest
+            onImagePickerRequest = onImagePickerRequest,
+            darkTheme = darkTheme
         )
     }
 
     if (showColorPicker) {
         BackgroundColorPicker(
-            onColorSelected = { color -> viewModel.updateBackgroundColor(color) },
+            onColorSelected = { color -> 
+                viewModel.updateBackgroundColor(color)
+                showColorPicker = false
+            },
             onDismiss = { showColorPicker = false }
         )
     }
 
     if (showAbout) {
-        AboutScreen(
-            onDismiss = { showAbout = false },
-            modifier = Modifier.fillMaxWidth(0.8f)
-        )
+        Dialog(
+            onDismissRequest = { showAbout = false },
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true,
+                usePlatformDefaultWidth = false
+            )
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(8.dp),
+                color = Color(0xFFFFEB3B)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        "About Post-It Notes",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        "A simple sticky notes app for quick reminders and thoughts.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        "Created by JP Systems",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Black
+                    )
+                    TextButton(
+                        onClick = { showAbout = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    ) {
+                        Text("Close", color = Color.Black)
+                    }
+                }
+            }
+        }
+    }
+
+    if (showAddNoteDialog) {
+        var noteText by remember { mutableStateOf("") }
+        Dialog(
+            onDismissRequest = { showAddNoteDialog = false },
+            properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true,
+                usePlatformDefaultWidth = false
+            )
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(8.dp),
+                color = Color(0xFFFFEB3B)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        "Add Note",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.Black
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TextField(
+                        value = noteText,
+                        onValueChange = { noteText = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Enter note text") },
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Color.White,
+                            focusedContainerColor = Color.White
+                        )
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    ) {
+                        TextButton(
+                            onClick = { showAddNoteDialog = false },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Cancel", color = Color.Black)
+                        }
+                        TextButton(
+                            onClick = {
+                                if (noteText.isNotBlank()) {
+                                    viewModel.addNote(noteText)
+                                    noteText = ""
+                                    showAddNoteDialog = false
+                                }
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Add", color = Color.Black)
+                        }
+                    }
+                }
+            }
+        }
     }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        "Post-It Notes",
-                        style = MaterialTheme.typography.headlineMedium
+                        text = "Post-It Notes",
+                        color = Color.Black
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = { showAbout = true }) {
                         Icon(
-                            imageVector = Icons.Default.Menu,
-                            contentDescription = "About"
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "About",
+                            tint = Color.Black
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(
+                        onClick = { onThemeChanged(!darkTheme) }
+                    ) {
+                        Icon(
+                            imageVector = if (darkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
+                            contentDescription = if (darkTheme) "Switch to Light Mode" else "Switch to Dark Mode",
+                            tint = Color.Black
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background
+                    containerColor = Color(0xFFFFEB3B)
                 )
             )
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { viewModel.addNote() },
+                onClick = { showAddNoteDialog = true },
                 shape = CircleShape,
                 elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 8.dp),
                 containerColor = Color(0xFFFFEB3B)  // Material Yellow
@@ -189,19 +330,21 @@ fun NotesScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
                 .then(
-                    when (val bg = background) {
-                        is Background.Color -> Modifier.background(Color(bg.color))
-                        is Background.Image -> Modifier.paint(
-                            painter = rememberAsyncImagePainter(
-                                ImageRequest
-                                    .Builder(LocalContext.current)
-                                    .data(bg.uri)
-                                    .build()
-                            ),
-                            contentScale = ContentScale.Crop
-                        )
-
-                        else -> Modifier.background(Color.White)
+                    when {
+                        darkTheme -> Modifier.background(MaterialTheme.colorScheme.background)
+                        else -> when (val bg = background) {
+                            is Background.Color -> Modifier.background(Color(bg.color))
+                            is Background.Image -> Modifier.paint(
+                                painter = rememberAsyncImagePainter(
+                                    ImageRequest
+                                        .Builder(LocalContext.current)
+                                        .data(bg.uri)
+                                        .build()
+                                ),
+                                contentScale = ContentScale.Crop
+                            )
+                            else -> Modifier.background(MaterialTheme.colorScheme.background)
+                        }
                     }
                 )
                 .pointerInput(Unit) {
@@ -211,28 +354,40 @@ fun NotesScreen(
                     )
                 }
         ) {
-            notes.forEach { note ->
-                DraggableNote(
-                    note = note,
-                    onPositionChanged = { x, y ->
-                        viewModel.updateNotePosition(note.id, x, y)
-                    },
-                    onContentChanged = { content ->
-                        viewModel.updateNoteContent(note.id, content)
-                    },
-                    onColorChanged = { color ->
-                        viewModel.updateNoteColor(note.id, color)
-                    },
-                    onDelete = {
-                        viewModel.deleteNote(note.id)
-                    },
-                    isFocused = note.id == focusedNoteId,
-                    onFocusChanged = { isFocused ->
-                        if (!isFocused) {
-                            viewModel.clearNoteFocus()
-                        }
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = Color.Transparent
+            ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp)
+                ) {
+                    items(notes) { note ->
+                        DraggableNote(
+                            note = note,
+                            onPositionChanged = { x, y ->
+                                viewModel.updateNotePosition(note.id, x, y)
+                            },
+                            onContentChanged = { content ->
+                                viewModel.updateNoteContent(note.id, content)
+                            },
+                            onColorChanged = { color ->
+                                viewModel.updateNoteColor(note.id, color)
+                            },
+                            onDelete = {
+                                viewModel.deleteNote(note.id)
+                            },
+                            isFocused = note.id == focusedNoteId,
+                            onFocusChanged = { isFocused ->
+                                if (!isFocused) {
+                                    viewModel.clearNoteFocus()
+                                }
+                            },
+                            darkTheme = darkTheme
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
-                )
+                }
             }
         }
     }
@@ -240,6 +395,7 @@ fun NotesScreen(
 
 class MainActivity : ComponentActivity() {
     private val viewModel: NotesViewModel by viewModels()
+    private var darkTheme by mutableStateOf(false)
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -256,11 +412,20 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
 
         setContent {
-            NotesTheme {
-                NotesScreen(
-                    viewModel = viewModel,
-                    onImagePickerRequest = { checkAndRequestPermissions() }
-                )
+            NotesTheme(darkTheme = darkTheme) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    NotesScreen(
+                        viewModel = viewModel,
+                        onImagePickerRequest = { checkAndRequestPermissions() },
+                        darkTheme = darkTheme,
+                        onThemeChanged = { newTheme -> 
+                            darkTheme = newTheme
+                        }
+                    )
+                }
             }
         }
 

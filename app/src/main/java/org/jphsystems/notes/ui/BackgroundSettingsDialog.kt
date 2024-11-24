@@ -7,8 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -16,13 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 
 @Composable
 fun BackgroundSettingsDialog(
     onColorPickerRequested: () -> Unit,
     onImageSelected: (Uri) -> Unit,
     onDismiss: () -> Unit,
-    onImagePickerRequest: () -> Unit
+    onImagePickerRequest: () -> Unit,
+    darkTheme: Boolean = false
 ) {
     val imagePicker = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -30,7 +32,13 @@ fun BackgroundSettingsDialog(
         uri?.let { onImageSelected(it) }
     }
 
-    Dialog(onDismissRequest = onDismiss) {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = true
+        )
+    ) {
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -43,74 +51,60 @@ fun BackgroundSettingsDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "Background Settings",
-                    style = MaterialTheme.typography.headlineSmall,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    text = if (!darkTheme) "Background Settings" else "Background Settings (Dark Mode)",
+                    style = MaterialTheme.typography.titleLarge
                 )
+                
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Color option
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
+                if (!darkTheme) {
                     Row(
                         modifier = Modifier
-                            .clickable { onColorPickerRequested() }
-                            .padding(12.dp)
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .clickable(onClick = onColorPickerRequested)
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "Choose color",
-                            tint = MaterialTheme.colorScheme.primary
+                            contentDescription = "Choose color"
                         )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = "Choose Color",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        Text("Choose Background Color")
                     }
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                Divider()
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // Image option
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
                     Row(
                         modifier = Modifier
-                            .clickable {
+                            .fillMaxWidth()
+                            .clickable(onClick = {
                                 onImagePickerRequest()
                                 imagePicker.launch("image/*")
-                            }
-                            .padding(12.dp)
-                            .fillMaxWidth(),
+                            })
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Choose image",
-                            tint = MaterialTheme.colorScheme.primary
+                            contentDescription = "Choose image"
                         )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = "Choose Image",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                        Text("Choose Background Image")
                     }
+                } else {
+                    Text(
+                        text = "Background customization is only available in light mode",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(8.dp)
+                    )
                 }
-
+                
                 Spacer(modifier = Modifier.height(16.dp))
-
+                
                 TextButton(
                     onClick = onDismiss,
-                    modifier = Modifier.align(Alignment.End)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Close")
                 }

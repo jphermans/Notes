@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
 import org.jphsystems.notes.R
-import org.jphsystems.notes.widget.QuickNoteActivity
 
 class NotesWidgetProvider : AppWidgetProvider() {
     override fun onUpdate(
