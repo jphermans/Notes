@@ -1,6 +1,9 @@
 package org.jphsystems.notes
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -10,6 +13,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -28,6 +34,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
@@ -48,6 +56,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
@@ -55,6 +64,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -73,7 +83,8 @@ fun NotesScreen(
     viewModel: NotesViewModel,
     onImagePickerRequest: () -> Unit,
     darkTheme: Boolean,
-    onThemeChanged: (Boolean) -> Unit
+    themeMode: ThemeMode,
+    onThemeModeChanged: (ThemeMode) -> Unit
 ) {
     val notes by viewModel.notes.collectAsState()
     val background by viewModel.background.collectAsState()
@@ -129,20 +140,25 @@ fun NotesScreen(
                     Text(
                         "About Post-It Notes",
                         style = MaterialTheme.typography.headlineMedium,
-                        color = Color.Black
+                        color = Color.Black,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "A simple sticky notes app for quick reminders and thoughts.",
+                        "A simple sticky notes app for quick\n reminders and thoughts.",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.Black
+                        color = Color.Black,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        "Created by JP Systems",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Black
+                        "Created by JPHsystems",
+                        style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                        color = Color.Black,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
                     TextButton(
                         onClick = { showAbout = false },
                         modifier = Modifier
@@ -243,14 +259,86 @@ fun NotesScreen(
                     }
                 },
                 actions = {
-                    IconButton(
-                        onClick = { onThemeChanged(!darkTheme) }
-                    ) {
-                        Icon(
-                            imageVector = if (darkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
-                            contentDescription = if (darkTheme) "Switch to Light Mode" else "Switch to Dark Mode",
-                            tint = Color.Black
-                        )
+                    var showThemeMenu by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(
+                            onClick = { showThemeMenu = true }
+                        ) {
+                            Icon(
+                                imageVector = when (themeMode) {
+                                    ThemeMode.LIGHT -> Icons.Default.LightMode
+                                    ThemeMode.DARK -> Icons.Default.DarkMode
+                                    ThemeMode.SYSTEM -> if (darkTheme) Icons.Default.DarkMode else Icons.Default.LightMode
+                                },
+                                contentDescription = "Change theme",
+                                tint = Color.Black
+                            )
+                        }
+                        
+                        DropdownMenu(
+                            expanded = showThemeMenu,
+                            onDismissRequest = { showThemeMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { 
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.LightMode,
+                                            contentDescription = null,
+                                            tint = if (themeMode == ThemeMode.LIGHT) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text("Light Theme")
+                                    }
+                                },
+                                onClick = {
+                                    onThemeModeChanged(ThemeMode.LIGHT)
+                                    showThemeMenu = false
+                                }
+                            )
+                            
+                            DropdownMenuItem(
+                                text = { 
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.DarkMode,
+                                            contentDescription = null,
+                                            tint = if (themeMode == ThemeMode.DARK) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text("Dark Theme")
+                                    }
+                                },
+                                onClick = {
+                                    onThemeModeChanged(ThemeMode.DARK)
+                                    showThemeMenu = false
+                                }
+                            )
+                            
+                            DropdownMenuItem(
+                                text = { 
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            imageVector = if (darkTheme) Icons.Default.DarkMode else Icons.Default.LightMode,
+                                            contentDescription = null,
+                                            tint = if (themeMode == ThemeMode.SYSTEM) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text("System Theme")
+                                    }
+                                },
+                                onClick = {
+                                    onThemeModeChanged(ThemeMode.SYSTEM)
+                                    showThemeMenu = false
+                                }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -299,8 +387,7 @@ fun NotesScreen(
                 )
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onTap = { focusManager.clearFocus() },
-                        onLongPress = { showBackgroundSettings = true }
+                        onTap = { focusManager.clearFocus() }
                     )
                 }
         ) {
@@ -308,34 +395,51 @@ fun NotesScreen(
                 modifier = Modifier.fillMaxSize(),
                 color = Color.Transparent
             ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(16.dp)
+                Box(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    items(notes) { note ->
-                        DraggableNote(
-                            note = note,
-                            onPositionChanged = { x, y ->
-                                viewModel.updateNotePosition(note.id, x, y)
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onTap = { focusManager.clearFocus() },
+                                    onLongPress = { showBackgroundSettings = true }
+                                )
                             },
-                            onContentChanged = { content ->
-                                viewModel.updateNoteContent(note.id, content)
-                            },
-                            onColorChanged = { color ->
-                                viewModel.updateNoteColor(note.id, color)
-                            },
-                            onDelete = {
-                                viewModel.deleteNote(note.id)
-                            },
-                            isFocused = note.id == focusedNoteId,
-                            onFocusChanged = { isFocused ->
-                                if (!isFocused) {
-                                    viewModel.clearNoteFocus()
-                                }
-                            },
-                            darkTheme = darkTheme
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 16.dp,
+                            bottom = 80.dp
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+                    ) {
+                        items(notes) { note ->
+                            DraggableNote(
+                                note = note,
+                                onPositionChanged = { x, y ->
+                                    viewModel.updateNotePosition(note.id, x, y)
+                                },
+                                onContentChanged = { content ->
+                                    viewModel.updateNoteContent(note.id, content)
+                                },
+                                onColorChanged = { color ->
+                                    viewModel.updateNoteColor(note.id, color)
+                                },
+                                onDelete = {
+                                    viewModel.deleteNote(note.id)
+                                },
+                                isFocused = note.id == focusedNoteId,
+                                onFocusChanged = { isFocused ->
+                                    if (!isFocused) {
+                                        viewModel.clearNoteFocus()
+                                    }
+                                },
+                                darkTheme = darkTheme,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
                     }
                 }
             }
@@ -343,9 +447,13 @@ fun NotesScreen(
     }
 }
 
+enum class ThemeMode {
+    LIGHT, DARK, SYSTEM
+}
+
 class MainActivity : ComponentActivity() {
     private val viewModel: NotesViewModel by viewModels()
-    private var darkTheme by mutableStateOf(false)
+    private var themeMode by mutableStateOf(ThemeMode.SYSTEM)
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -362,7 +470,13 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
 
         setContent {
-            NotesTheme(darkTheme = darkTheme) {
+            val isDarkTheme = when (themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+            }
+            
+            NotesTheme(darkTheme = isDarkTheme) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -370,9 +484,10 @@ class MainActivity : ComponentActivity() {
                     NotesScreen(
                         viewModel = viewModel,
                         onImagePickerRequest = { checkAndRequestPermissions() },
-                        darkTheme = darkTheme,
-                        onThemeChanged = { newTheme -> 
-                            darkTheme = newTheme
+                        darkTheme = isDarkTheme,
+                        themeMode = themeMode,
+                        onThemeModeChanged = { newMode -> 
+                            themeMode = newMode
                         }
                     )
                 }

@@ -137,13 +137,13 @@ class NotificationService : Service() {
         return NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("Post-it")
             .setContentText(notesText)
-            .setSmallIcon(R.drawable.ic_notification)
+            .setSmallIcon(R.drawable.ic_baseline_post_it_24)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setOngoing(true)
             .setContentIntent(openAppPendingIntent)
             .addAction(
-                R.drawable.ic_add,
+                R.drawable.ic_baseline_add_24,
                 "Add New Note",
                 createNotePendingIntent
             )

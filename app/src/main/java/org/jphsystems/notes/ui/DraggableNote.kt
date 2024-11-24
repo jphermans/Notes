@@ -10,16 +10,19 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -49,7 +52,29 @@ fun DraggableNote(
     
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
-    val noteBackgroundColor = Color(note.color).copy(alpha = 0.9f)
+    // Set the background color of the note to the color stored in the Note object, 
+    // but make sure it's fully opaque (alpha = 1.0f) so that the text is readable.
+    val noteBackgroundColor = Color(note.color).copy(alpha = 1.0f)
+    
+    // Get the screen width to make notes responsive
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    
+    // Fixed width at 70% of screen width
+    val baseWidth = screenWidth * 0.7f
+    
+    val baseHeight by remember(note.content.length, screenWidth) {
+        derivedStateOf {
+            val maxHeight = minOf(screenWidth * 0.7f, 350.dp)
+            when {
+                note.content.length > 300 -> maxHeight * 0.9f
+                note.content.length > 200 -> maxHeight * 0.8f
+                note.content.length > 100 -> maxHeight * 0.7f
+                note.content.length > 50 -> maxHeight * 0.6f
+                else -> maxHeight * 0.5f
+            }
+        }
+    }
     
     LaunchedEffect(isFocused) {
         if (isFocused) {
@@ -64,25 +89,13 @@ fun DraggableNote(
         }
     }
 
-    // Calculate base size based on content length
-    val baseWidth = if (note.content.length > 200) 350.dp 
-                   else if (note.content.length > 100) 300.dp 
-                   else if (note.content.length > 50) 250.dp 
-                   else 200.dp
-    
-    val baseHeight = if (note.content.length > 300) 280.dp
-                    else if (note.content.length > 200) 240.dp 
-                    else if (note.content.length > 100) 180.dp 
-                    else if (note.content.length > 50) 140.dp 
-                    else 100.dp
-    
     val noteSize by animateDpAsState(
-        targetValue = if (isEditing) baseWidth + 50.dp else baseWidth,
+        targetValue = if (isEditing) baseWidth + 100.dp else baseWidth,
         animationSpec = spring()
     )
-
+    
     val noteHeight by animateDpAsState(
-        targetValue = if (isEditing) baseHeight + 40.dp else baseHeight,
+        targetValue = if (isEditing) baseHeight + 100.dp else baseHeight,
         animationSpec = spring()
     )
 
@@ -96,18 +109,13 @@ fun DraggableNote(
     Box(
         modifier = modifier
             .offset { IntOffset(offsetX.roundToInt(), offsetY.roundToInt()) }
-            .width(noteSize)
-            .height(noteHeight)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) { 
-                if (!isDragging) {
-                    focusRequester.requestFocus()
-                }
-            }
+            .size(width = noteSize, height = noteHeight)
+            .background(
+                color = noteBackgroundColor,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .clip(RoundedCornerShape(8.dp))
     ) {
-        // Header for dragging
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -126,17 +134,15 @@ fun DraggableNote(
                             isDragging = false
                             onPositionChanged(offsetX, offsetY)
                         },
-                        onDragCancel = { 
+                        onDragCancel = {
                             isDragging = false
-                            offsetX = note.x
-                            offsetY = note.y
-                        },
-                        onDrag = { change, dragAmount ->
-                            change.consume()
-                            offsetX += dragAmount.x
-                            offsetY += dragAmount.y
+                            onPositionChanged(offsetX, offsetY)
                         }
-                    )
+                    ) { change, dragAmount ->
+                        change.consume()
+                        offsetX += dragAmount.x
+                        offsetY += dragAmount.y
+                    }
                 }
         )
 
@@ -167,7 +173,7 @@ fun DraggableNote(
                     modifier = Modifier.size(20.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Check,
+                        imageVector = Icons.Default.Palette,
                         contentDescription = "Change color",
                         tint = if (darkTheme) Color.Black.copy(alpha = 0.87f) else MaterialTheme.colorScheme.onSurface
                     )

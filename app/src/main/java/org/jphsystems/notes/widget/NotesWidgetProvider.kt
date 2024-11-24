@@ -28,7 +28,7 @@ class NotesWidgetProvider : AppWidgetProvider() {
             // Create RemoteViews
             val views = RemoteViews(context.packageName, R.layout.widget_notes).apply {
                 // Set the hint text
-                setTextViewText(R.id.widget_note_input, "Tap to create a quick note...")
+                setTextViewText(R.id.widget_note_input, "Tap to create a post-it note...")
 
                 // Create intent for QuickNoteActivity
                 val intent = Intent(context, QuickNoteActivity::class.java).apply {
