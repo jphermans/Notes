@@ -79,6 +79,35 @@ Feel free to submit issues, fork the repository, and create pull requests for an
 ## License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
+## Screenshots
+
+![Main Screen](screenshots/p1.png)
+*Main app interface with notes*
+
+![Note Creation](screenshots/p2.png)
+*Creating and editing notes*
+
+![Color Options](screenshots/p3.png)
+*Note color customization*
+
+![Background Settings](screenshots/p4.png)
+*Background customization dialog*
+
+![Custom Background](screenshots/p5.png)
+*App with custom background*
+
+![Dark Mode](screenshots/p6.png)
+*Dark mode interface*
+
+![Quick Note](screenshots/p7.png)
+*Quick note creation from notification*
+
+![Note Management](screenshots/p8.png)
+*Managing multiple notes*
+
+![Settings Dialog](screenshots/p9.png)
+*Additional settings and options*
+
 ## Contact
 Project Link: [https://github.com/jphermans/Notes](https://github.com/jphermans/Notes)
 
